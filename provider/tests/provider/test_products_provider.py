@@ -23,6 +23,7 @@ section of the Pact documentation.
 """
 
 from __future__ import annotations
+from collections import OrderedDict
 
 from multiprocessing import Process
 from typing import Any, Dict, Generator, Union
@@ -33,7 +34,7 @@ import uvicorn
 from pact import Verifier
 from pydantic import BaseModel
 from yarl import URL
-
+import os
 from app.main import app
 
 PROVIDER_URL = URL("http://localhost:8080")
@@ -92,7 +93,7 @@ def verifier() -> Generator[Verifier, Any, None]:
     """Set up the Pact verifier."""
     proc = Process(target=run_server, daemon=True)
     verifier = Verifier(
-        provider="example-consumer-python",
+        provider="example-provider-python",
         provider_base_url=str(PROVIDER_URL),
     )
     proc.start()
@@ -174,8 +175,7 @@ def mock_products_exist() -> None:
         "type": "test",
     }]
 
-
-def test_pact(verifier: Verifier) -> None:
+def test_pact_file(verifier: Verifier) -> None:
     """
     Test the provider against the pact contract generated from the consumer.
 
@@ -193,30 +193,33 @@ def test_pact(verifier: Verifier) -> None:
 
     assert code == 0
 
-# def test_against_broker(broker: URL, verifier: Verifier) -> None:
-#     """
-#     Test the provider against the broker.
+def test_against_broker(verifier: Verifier) -> None:
+    """
+    Test the provider against the broker.
 
-#     The broker will be used to retrieve the contract, and the provider will be
-#     tested against the contract.
+    The broker will be used to retrieve the contract, and the provider will be
+    tested against the contract.
 
-#     As Pact is a consumer-driven, the provider is tested against the contract
-#     defined by the consumer. The consumer defines the expected request to and
-#     response from the provider.
+    As Pact is a consumer-driven, the provider is tested against the contract
+    defined by the consumer. The consumer defines the expected request to and
+    response from the provider.
 
-#     For an example of the consumer's contract, see the consumer's tests.
-#     """
-#     code, _ = verifier.verify_with_broker(
-#         broker_url=str(broker),
-#         # Despite the auth being set in the broker URL, we still need to pass
-#         # the username and password to the verify_with_broker method.
-#         broker_username=broker.user,
-#         broker_password=broker.password,
-#         publish_version="0.0.0",
-#         publish_verification_results=True,
-#         provider_states_setup_url=str(PROVIDER_URL / "_pact" / "provider_states"),
-#     )
+    For an example of the consumer's contract, see the consumer's tests.
+    """
+    code, _ = verifier.verify_with_broker(
+        broker_url=os.getenv("PACT_BROKER_BASE_URL"),
+        broker_username=os.getenv("PACT_BROKER_USERNAME"),
+        broker_password=os.getenv("PACT_BROKER_PASSWORD"),
+        publish_version=os.getenv("GIT_COMMIT"),
+        provider_version_branch=os.getenv("GIT_BRANCH"),
+        branch=os.getenv("GIT_BRANCH"),
+        publish_verification_results=True,
+        provider_states_setup_url=str(
+            PROVIDER_URL / "_pact" / "provider_states"),
+        log_level="debug",
+        consumer_version_selectors=[
+            OrderedDict([("mainBranch", True)]),
+        ],
+    )
 
-#     assert code == 0
-
-# def test_pact_from_broker(broker: URL, verifier: Verifier) -> None:
+    assert code == 0

@@ -1,0 +1,54 @@
+name: Pact-Workshop(Python)
+
+on:
+    push:
+        branches:
+            - wip
+    pull_request:
+        branches:
+            - wip
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+              shell: bash
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                python-version: '3.11' 
+            - name: install consumer
+              run: pip install -r requirements.txt
+              working-directory: consumer
+            - name: test consumer
+              run: pytest -vvvvs
+              working-directory: consumer
+            - uses: KengoTODA/actions-setup-docker-compose@v1
+              if: ${{ env.ACT }}
+              name: Install `docker-compose` for use with act
+              with:
+                version: '2.24.1'
+            - name: start pact broker
+              run: make broker
+            - name: publish consumer pacts
+              run: make publish_pacts
+            - name: install provider
+              run: pip install -r requirements.txt
+              working-directory: provider
+            - name: test provider
+              run: pytest -vvvvs
+              working-directory: provider
+            - name: provider check safe to deploy
+              run: make deploy-provider
+            - name: provider record deployment
+              run: make record-deploy-provider
+            - name: consumer check safe to deploy
+              run: make record-deploy-consumer
+            - name: consumer check safe to deploy
+              run: make deploy-consumer
+            - name: consumer record deployment
+              run: make record-deploy-consumer
