@@ -1,4 +1,4 @@
-# Example Python project for the Pact workshop
+# Example Python project for the Pact workshop - wip 🚧
 
 This workshop should take about 2 hours, depending on how deep you want to go into each topic.
 
