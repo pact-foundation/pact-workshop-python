@@ -10,7 +10,7 @@
 
 This is an example of a Python consumer using Pact to create a consumer driven contract, and sharing it via [PactFlow](https://pactflow.io).
 
-It is using a public tenant on PactFlow, which you can access [here](https://test.pactflow.io) using the credentials `dXfltyFMgNOFZAxr8io9wJ37iUpY42M`/`O5AIZWxelWbLvqMd8PkAVycBJh2Psyg1`. The latest version of the Example Consumer/Example Provider pact is published [here](https://test.pactflow.io/pacts/provider/pactflow-example-provider-python/consumer/pactflow-example-consumer-python/latest).
+It is using a public tenant on PactFlow, which you can access [here](https://test.pactflow.io). Login using this [special link](https://test.pactflow.io/login?code=98f7810e-c7dc-493b-9c3d-7849952f1d9a&utm_medium=web&utm_source=pact-workshop-python-consumer). The latest version of the Example Consumer/Example Provider pact is published [here](https://test.pactflow.io/pacts/provider/pactflow-example-provider-python/consumer/pactflow-example-consumer-python/latest).
 
 The project uses a Makefile to simulate a very simple build pipeline with two stages - test and deploy.
 
@@ -35,7 +35,6 @@ make test
 To run the "fake ci" task:
 ```
 export PACT_BROKER_BASE_URL=https://test.pactflow.io
-export PACT_BROKER_USERNAME=dXfltyFMgNOFZAxr8io9wJ37iUpY42M
-export PACT_BROKER_PASSWORD=O5AIZWxelWbLvqMd8PkAVycBJh2Psyg1
+export PACT_BROKER_TOKEN=129cCdfCWhMzcC9pFwb4bw
 make fake_ci
 ```
